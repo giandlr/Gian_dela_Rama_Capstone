@@ -7,3 +7,4 @@ Directories:
 /models - saved model (random forest)  
 /results - prediction files  
 /data - raw data for processing  
+/presentation - business and technical presentation
