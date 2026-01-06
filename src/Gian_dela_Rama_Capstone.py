@@ -308,7 +308,6 @@ models = {
     'Decision Tree': DecisionTreeClassifier(class_weight='balanced', max_depth=10, random_state=42),
     'Random Forest': RandomForestClassifier(n_estimators=100, max_depth=10, class_weight='balanced', random_state=42),
     'Gradient Boosting': GradientBoostingClassifier(n_estimators=100, max_depth=5, random_state=42),
-    'SVM (RBF)': SVC(kernel='rbf', class_weight='balanced', probability=True, random_state=42),
     'K-Nearest Neighbors': KNeighborsClassifier(n_neighbors=5)
 }
 print(f"   Models to compare: {len(models)}")
@@ -319,7 +318,7 @@ results = []
 for name, model in models.items():
     print(f"   {name}...", end=" ")
 
-    if name in ['Logistic Regression', 'SVM (RBF)', 'K-Nearest Neighbors']:
+    if name in ['Logistic Regression', 'K-Nearest Neighbors']:
         X_tr, X_te = X_train_scaled, X_test_scaled
     else:
         X_tr, X_te = X_train.values, X_test.values
@@ -352,7 +351,7 @@ fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
 # ROC curves
 for name, model in models.items():
-    if name in ['Logistic Regression', 'SVM (RBF)', 'K-Nearest Neighbors']:
+    if name in ['Logistic Regression', 'K-Nearest Neighbors']:
         X_te = X_test_scaled
     else:
         X_te = X_test.values
@@ -369,7 +368,7 @@ axes[0].set_title('ROC Curves', fontweight='bold')
 axes[0].legend(loc='lower right', fontsize=8)
 
 # Confusion matrix for best model
-if best_model_name in ['Logistic Regression', 'SVM (RBF)', 'K-Nearest Neighbors']:
+if best_model_name in ['Logistic Regression', 'K-Nearest Neighbors']:
     y_pred_best = best_model.predict(X_test_scaled)
 else:
     y_pred_best = best_model.predict(X_test.values)
@@ -392,18 +391,18 @@ importance = pd.DataFrame({
     'Importance': rf_model.feature_importances_
 }).sort_values('Importance', ascending=False)
 
-print("\n📊 TOP 15 MOST IMPORTANT FEATURES:")
-print("-" * 50)
-for idx, row in importance.head(15).iterrows():
+print("\n TOP 5 MOST IMPORTANT FEATURES:")
+
+for idx, row in importance.head(5).iterrows():
     print(f"   {row['Feature']:30} {row['Importance']*100:.2f}%")
 
 # Visualize
 fig, ax = plt.subplots(figsize=(10, 8))
-top_15 = importance.head(15).sort_values('Importance')
+top_5 = importance.head(5).sort_values('Importance')
 colors = plt.cm.Blues(np.linspace(0.4, 0.8, 15))
-ax.barh(top_15['Feature'], top_15['Importance'], color=colors)
+ax.barh(top_5['Feature'], top_5['Importance'], color=colors)
 ax.set_xlabel('Importance')
-ax.set_title('Top 15 Feature Importances (Random Forest)', fontsize=14, fontweight='bold')
+ax.set_title('Top 5 Most Important Features (Random Forest)', fontsize=14, fontweight='bold')
 plt.tight_layout()
 plt.show()
 
@@ -509,6 +508,7 @@ print("\n Explaining Individual Predictions")
 probs_sample = rf_model.predict_proba(X_sample_values)[:, 1]
 high_risk_idx = int(np.argmax(probs_sample))
 low_risk_idx = int(np.argmin(probs_sample))
+
 
 print(f"\n   🔴 HIGH RISK Employee (Index {high_risk_idx}):")
 print(f"      Predicted probability: {probs_sample[high_risk_idx]*100:.1f}%")
